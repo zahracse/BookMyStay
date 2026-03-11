@@ -1,48 +1,53 @@
-import java.util.*;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-public class RoomInventory {
-
-    private Map<String, Integer> availableRooms;
+public class RoomInventory implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Map<String, Integer> inventory;
 
     public RoomInventory() {
-        availableRooms = new HashMap<>();
-        availableRooms.put("Standard", 10);
-        availableRooms.put("Deluxe", 5);
-        availableRooms.put("Suite", 2);
+        inventory = new HashMap<>();
     }
 
-    // Validate booking
-    public void validateBooking(String roomType, int roomsRequested) throws InvalidBookingException {
-        if (!availableRooms.containsKey(roomType)) {
-            throw new InvalidBookingException("Invalid room type: " + roomType);
-        }
-        if (roomsRequested <= 0) {
-            throw new InvalidBookingException("Number of rooms must be greater than zero.");
-        }
-        int available = availableRooms.get(roomType);
-        if (roomsRequested > available) {
-            throw new InvalidBookingException("Only " + available + " rooms available for " + roomType);
+    // Add a new room type
+    public void addRoomType(String roomType, int count) {
+        inventory.put(roomType, count);
+    }
+
+    // Update availability manually
+    public void updateAvailability(String roomType, int count) {
+        if (inventory.containsKey(roomType)) {
+            inventory.put(roomType, count);
+        } else {
+            System.out.println("Room type not found.");
         }
     }
 
-    // Book rooms
+    // Book rooms (decrease inventory)
     public void bookRooms(String roomType, int roomsRequested) throws InvalidBookingException {
-        validateBooking(roomType, roomsRequested);
-        int updated = availableRooms.get(roomType) - roomsRequested;
-        availableRooms.put(roomType, updated);
+        if (!inventory.containsKey(roomType)) throw new InvalidBookingException("Room type not found.");
+        if (roomsRequested <= 0) throw new InvalidBookingException("Invalid number of rooms requested.");
+        int available = inventory.get(roomType);
+        if (available < roomsRequested) throw new InvalidBookingException("Not enough rooms available.");
+        inventory.put(roomType, available - roomsRequested);
     }
 
-    // Cancel rooms (rollback inventory)
-    public void cancelBooking(String roomType, int roomsToRelease) {
-        int updated = availableRooms.getOrDefault(roomType, 0) + roomsToRelease;
-        availableRooms.put(roomType, updated);
+    // Cancel booking (increase inventory)
+    public void cancelBooking(String roomType, int roomsReleased) {
+        inventory.put(roomType, inventory.getOrDefault(roomType, 0) + roomsReleased);
+    }
+
+    // Get availability for a room type
+    public int getAvailability(String roomType) {
+        return inventory.getOrDefault(roomType, 0);
     }
 
     // Display inventory
     public void displayInventory() {
         System.out.println("\n=== Room Inventory ===");
-        for (Map.Entry<String, Integer> entry : availableRooms.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue() + " rooms available");
+        for (String type : inventory.keySet()) {
+            System.out.println(type + ": " + inventory.get(type) + " rooms available");
         }
     }
 }
