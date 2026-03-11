@@ -1,111 +1,76 @@
 import java.util.*;
 
-// Reservation class (represents a confirmed booking)
-class BookingRecord {
-    private String reservationId;
-    private String guestName;
-    private String roomType;
-    private double cost;
-
-    public BookingRecord(String reservationId, String guestName, String roomType, double cost) {
-        this.reservationId = reservationId;
-        this.guestName = guestName;
-        this.roomType = roomType;
-        this.cost = cost;
-    }
-
-    public String getReservationId() {
-        return reservationId;
-    }
-
-    public String getGuestName() {
-        return guestName;
-    }
-
-    public String getRoomType() {
-        return roomType;
-    }
-
-    public double getCost() {
-        return cost;
-    }
-
-    @Override
-    public String toString() {
-        return "Reservation ID: " + reservationId +
-                ", Guest: " + guestName +
-                ", Room: " + roomType +
-                ", Cost: ₹" + cost;
-    }
-}
-
-// Booking History (stores confirmed reservations)
-class BookingHistory {
-    private List<BookingRecord> history;
-
-    public BookingHistory() {
-        history = new ArrayList<>();
-    }
-
-    public void addReservation(BookingRecord reservation) {   // ✔ fixed
-        history.add(reservation);
-    }
-
-    public List<BookingRecord> getAllReservations() {         // ✔ fixed
-        return history;
-    }
-}
-
-// Reporting Service (generates reports)
-class BookingReportService {
-
-    public void displayAllBookings(List<BookingRecord> reservations) {  // ✔ fixed
-        if (reservations.isEmpty()) {
-            System.out.println("No bookings found.");
-            return;
-        }
-
-        System.out.println("=== Booking History ===");
-        for (BookingRecord r : reservations) {   // ✔ fixed
-            System.out.println(r);
-        }
-    }
-
-    public void generateSummary(List<BookingRecord> reservations) {  // ✔ fixed
-        int totalBookings = reservations.size();
-        double totalRevenue = 0;
-
-        for (BookingRecord r : reservations) {   // ✔ fixed
-            totalRevenue += r.getCost();
-        }
-
-        System.out.println("\n=== Booking Summary Report ===");
-        System.out.println("Total Bookings: " + totalBookings);
-        System.out.println("Total Revenue: ₹" + totalRevenue);
-    }
-}
-
 public class UseCase8BookingHistoryReport {
 
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
 
-        BookingHistory history = new BookingHistory();
-        BookingReportService reportService = new BookingReportService();
+        // Use the existing BookingRecord class
+        List<BookingRecord> bookingHistory = new ArrayList<>();
 
-        // Simulating confirmed bookings
-        BookingRecord r1 = new BookingRecord("RES101", "Alice", "Deluxe", 3000);
-        BookingRecord r2 = new BookingRecord("RES102", "Bob", "Suite", 5000);
-        BookingRecord r3 = new BookingRecord("RES103", "Charlie", "Standard", 2000);
+        System.out.println("=== Book My Stay: Booking History & Reporting ===");
 
-        // Add to history
-        history.addReservation(r1);
-        history.addReservation(r2);
-        history.addReservation(r3);
+        while (true) {
+            System.out.println("\nOptions: 1. Add Booking  2. View History  3. Generate Report  4. Exit");
+            System.out.print("Select option: ");
+            String option = sc.nextLine();
 
-        // Display bookings
-        reportService.displayAllBookings(history.getAllReservations());
+            switch (option) {
+                case "1": // Add Booking
+                    System.out.print("Enter Reservation ID: ");
+                    String resId = sc.nextLine();
 
-        // Generate report
-        reportService.generateSummary(history.getAllReservations());
+                    System.out.print("Enter Guest Name: ");
+                    String guestName = sc.nextLine();
+
+                    System.out.print("Enter Room Type: ");
+                    String roomType = sc.nextLine();
+
+                    System.out.print("Enter Number of Rooms: ");
+                    int roomsBooked;
+                    try {
+                        roomsBooked = Integer.parseInt(sc.nextLine());
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid number input.");
+                        break;
+                    }
+
+                    // Create and store booking
+                    BookingRecord booking = new BookingRecord(resId, guestName, roomType, roomsBooked);
+                    bookingHistory.add(booking);
+                    System.out.println("Booking added successfully: " + booking);
+                    break;
+
+                case "2": // View History
+                    System.out.println("\n=== Booking History ===");
+                    if (bookingHistory.isEmpty()) {
+                        System.out.println("No bookings found.");
+                    } else {
+                        for (BookingRecord b : bookingHistory) {
+                            System.out.println(b);
+                        }
+                    }
+                    break;
+
+                case "3": // Generate Summary Report
+                    System.out.println("\n=== Booking Summary Report ===");
+                    int totalBookings = bookingHistory.size();
+                    int totalRooms = 0;
+                    for (BookingRecord b : bookingHistory) {
+                        totalRooms += b.getRoomsBooked();
+                    }
+                    System.out.println("Total Bookings: " + totalBookings);
+                    System.out.println("Total Rooms Booked: " + totalRooms);
+                    break;
+
+                case "4": // Exit
+                    System.out.println("Exiting Booking History module.");
+                    sc.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid option. Try again.");
+            }
+        }
     }
 }
